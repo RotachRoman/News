@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB1E8208255E9D9400DE3108 /* ParseRSS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1E8207255E9D9400DE3108 /* ParseRSS.swift */; };
 		CB5E4205255A9D9D00CB3872 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5E4204255A9D9D00CB3872 /* AppDelegate.swift */; };
 		CB5E4207255A9D9D00CB3872 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5E4206255A9D9D00CB3872 /* SceneDelegate.swift */; };
 		CB5E420E255A9DA000CB3872 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB5E420D255A9DA000CB3872 /* Assets.xcassets */; };
 		CB5E4211255A9DA000CB3872 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB5E420F255A9DA000CB3872 /* LaunchScreen.storyboard */; };
 		CB5E4221255A9F4600CB3872 /* MainNewsTabelTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5E4220255A9F4600CB3872 /* MainNewsTabelTableViewController.swift */; };
 		CB5E4225255A9FDA00CB3872 /* NewsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5E4224255A9FDA00CB3872 /* NewsModel.swift */; };
+		CB6B6520255D893D0001F32C /* RSSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6B651F255D893D0001F32C /* RSSParser.swift */; };
 		CB946195255AA47500AADB74 /* NewsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB946194255AA47500AADB74 /* NewsTableViewCell.swift */; };
 		CB946199255AA6B100AADB74 /* ExtensionUIViewConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB946198255AA6B100AADB74 /* ExtensionUIViewConstraint.swift */; };
 		CB94619E255AB8B200AADB74 /* CellViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB94619D255AB8B200AADB74 /* CellViewController.swift */; };
@@ -20,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CB1E8207255E9D9400DE3108 /* ParseRSS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParseRSS.swift; sourceTree = "<group>"; };
 		CB5E4201255A9D9D00CB3872 /* News.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = News.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB5E4204255A9D9D00CB3872 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB5E4206255A9D9D00CB3872 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -28,6 +31,7 @@
 		CB5E4212255A9DA000CB3872 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB5E4220255A9F4600CB3872 /* MainNewsTabelTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNewsTabelTableViewController.swift; sourceTree = "<group>"; };
 		CB5E4224255A9FDA00CB3872 /* NewsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModel.swift; sourceTree = "<group>"; };
+		CB6B651F255D893D0001F32C /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
 		CB946194255AA47500AADB74 /* NewsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsTableViewCell.swift; sourceTree = "<group>"; };
 		CB946198255AA6B100AADB74 /* ExtensionUIViewConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionUIViewConstraint.swift; sourceTree = "<group>"; };
 		CB94619D255AB8B200AADB74 /* CellViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellViewController.swift; sourceTree = "<group>"; };
@@ -99,6 +103,8 @@
 				CB5E4220255A9F4600CB3872 /* MainNewsTabelTableViewController.swift */,
 				CB946194255AA47500AADB74 /* NewsTableViewCell.swift */,
 				CB94619D255AB8B200AADB74 /* CellViewController.swift */,
+				CB6B651F255D893D0001F32C /* RSSParser.swift */,
+				CB1E8207255E9D9400DE3108 /* ParseRSS.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -189,7 +195,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB94619E255AB8B200AADB74 /* CellViewController.swift in Sources */,
+				CB6B6520255D893D0001F32C /* RSSParser.swift in Sources */,
 				CB5E4225255A9FDA00CB3872 /* NewsModel.swift in Sources */,
+				CB1E8208255E9D9400DE3108 /* ParseRSS.swift in Sources */,
 				CB5E4221255A9F4600CB3872 /* MainNewsTabelTableViewController.swift in Sources */,
 				CB946195255AA47500AADB74 /* NewsTableViewCell.swift in Sources */,
 				CB9461A2255ABB1F00AADB74 /* CellView.swift in Sources */,

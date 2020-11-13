@@ -67,7 +67,7 @@ final class CellView: UIView {
     private func setupConstraints() {
         
         NSLayoutConstraint.activate([
-            textTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: padding + nc),
+            textTitle.topAnchor.constraint(equalTo: topAnchor, constant: padding + nc),
             textTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
         ])
         

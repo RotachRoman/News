@@ -10,12 +10,15 @@ import UIKit
 var ind: Int = -1
 var newsModel: [NewsModel] = [NewsModel]()
 
-final class MainNewsTabelTableViewController: UIViewController, UITableViewDelegate {
+final class MainNewsTabelTableViewController: UIViewController, UITableViewDelegate, XMLParserDelegate {
     
     private var tableView = UITableView()
+    private var rssParser: RSSParser!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+//        workWithParse()
+        
         setupTableView()
         setupConstraints()
         addNews()
@@ -23,11 +26,51 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         sortedNews()
         editNavigation()
         tableView.reloadData()
+        
+        loadData()
+        
+//        let rssParser = RSSParser()
+//        rssParser.startParsingWithContentsOfURL(rssURl: "https://www.banki.ru/xml/news.rss")
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
+    }
+    
+    func workWithParse(){
+        guard let url = URL(string: "https://www.banki.ru/xml/news.rss") else { return  }
+        rssParser = RSSParser()
+        rssParser.startParsingWithContentsOfURL(rssURl: url) { active in
+            
+        }
+    }
+    
+    //MARK: - load
+    private func loadData(){
+        guard let url = URL(string:"https://www.finam.ru/net/analysis/conews/rsspoint") else {
+            // show error
+            return
+        }
+        let request = URLRequest(url: url)
+        let session = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            if error != nil {
+                return
+            }
+            guard let data = data else {
+                // show error
+                return
+            }
+            var str = String(data: data, encoding: .ascii)
+            str = str?.replacingOccurrences(of: "\r", with: "\n")
+            
+            let p = ParserRSS()
+            p.setData(data: data)
+            p.parse()
+            
+        }
+        session.resume()
+        
     }
     
     //MARK: - Settings Navigation
@@ -94,7 +137,7 @@ extension MainNewsTabelTableViewController: UITableViewDataSource{
         cell.selectionStyle = .none
         
         if news.isReadNews == true{
-            cell.backgroundColor = .init(red: 66/256, green: 145/256, blue: 1, alpha: 0.1)
+            cell.backgroundColor = .init(red: 66/255, green: 145/255, blue: 1, alpha: 0.1)
         }
         
         return cell
