@@ -51,16 +51,16 @@ final class ParserRSS: NSObject, XMLParserDelegate
     }
     
     // Terminate session
-    func parserDidEndDocument(_ parser: XMLParser) {
+     func parserDidEndDocument(_ parser: XMLParser) {
         ready = true
     }
     
     // Start a new session
-    func parserDidStartDocument(_ parser: XMLParser) {
+     func parserDidStartDocument(_ parser: XMLParser) {
         ready = false
     }
     
-    func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         if elementName == "item" {
             inItem = false
             items.append(item)
@@ -72,7 +72,7 @@ final class ParserRSS: NSObject, XMLParserDelegate
         }
     }
     
-    func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
+     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         currentElementName = elementName
         if elementName == "item"
         {
@@ -81,7 +81,7 @@ final class ParserRSS: NSObject, XMLParserDelegate
         }
     }
     
-    func parser(_ parser: XMLParser, foundCharacters string: String)
+     func parser(_ parser: XMLParser, foundCharacters string: String)
     {
         switch currentElementName.lowercased()
         {

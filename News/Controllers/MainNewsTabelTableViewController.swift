@@ -13,24 +13,24 @@ var newsModel: [NewsModel] = [NewsModel]()
 final class MainNewsTabelTableViewController: UIViewController, UITableViewDelegate, XMLParserDelegate {
     
     private var tableView = UITableView()
-    private var rssParser: RSSParser!
-
+    private var parseData: ParserRSS!
+    
+    private let myRefreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refresh(sender:)), for: .valueChanged)
+        return refreshControl
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-//        workWithParse()
+        editNavigation()
+        updateInterface()
         
         setupTableView()
         setupConstraints()
-        addNews()
         
-        sortedNews()
-        editNavigation()
+        tableView.refreshControl = myRefreshControl
         tableView.reloadData()
-        
-        loadData()
-        
-//        let rssParser = RSSParser()
-//        rssParser.startParsingWithContentsOfURL(rssURl: "https://www.banki.ru/xml/news.rss")
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -38,41 +38,67 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         tableView.reloadData()
     }
     
-    func workWithParse(){
-        guard let url = URL(string: "https://www.banki.ru/xml/news.rss") else { return  }
-        rssParser = RSSParser()
-        rssParser.startParsingWithContentsOfURL(rssURl: url) { active in
-            
-        }
+    //MARK: - Work with Data
+    
+    @objc private func refresh(sender: UIRefreshControl){
+            updateInterface()
+            sender.endRefreshing()
     }
     
-    //MARK: - load
+    private func recordDataInArray() {
+        var count = 0
+        while (count < parseData?.items.count ?? 0) {
+            let title = parseData.items[count].titleNews
+            var text = parseData.items[count].textNews
+            let date = parseData.items[count].dateNews
+            
+            replacingText(text: &text)
+            
+            newsModel.append(NewsModel(title: title, text: text, date: date))
+            count += 1
+        }
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+
+    private func replacingText( text: inout String){
+        text = text.replacingOccurrences(of: "</p>", with: "\n", options: NSString.CompareOptions.literal, range: nil)
+        text = text.replacingOccurrences(of: "<p>", with: "", options: NSString.CompareOptions.literal, range: nil)
+        text = text.replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression, range: nil)
+    }
+    
     private func loadData(){
-        guard let url = URL(string:"https://www.finam.ru/net/analysis/conews/rsspoint") else {
+        guard let url = URL(string:"https://www.banki.ru/xml/news.rss") else {
             // show error
             return
         }
         let request = URLRequest(url: url)
-        let session = URLSession.shared.dataTask(with: request) { (data, response, error) in
+        let session = URLSession.shared.dataTask(with: request) {[weak self] (data, response, error) in
             if error != nil {
+                print("Error")
                 return
             }
             guard let data = data else {
-                // show error
+                print("No data")
                 return
             }
             var str = String(data: data, encoding: .ascii)
             str = str?.replacingOccurrences(of: "\r", with: "\n")
             
-            let p = ParserRSS()
-            p.setData(data: data)
-            p.parse()
-            
+            self?.parseData = ParserRSS()
+            self?.parseData.setData(data: data)
+            self?.parseData.parse()
+            self?.recordDataInArray()
         }
         session.resume()
-        
     }
     
+    private func updateInterface(){
+            loadData()
+            recordDataInArray()
+    }
+        
     //MARK: - Settings Navigation
     private func editNavigation(){
         
@@ -80,11 +106,11 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         self.navigationItem.title = "News"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refresh))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(update))
     }
     
-    @objc private func refresh() {
-        
+    @objc private func update() {
+        tableView.reloadData()
     }
     
     // MARK: - Setting Views
@@ -109,16 +135,6 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         tableView.rightAnchor.constraint(equalTo: safe.rightAnchor).isActive = true
     }
     
-    // MARK: -  Work with news
-    private func addNews() {
-        newsModel.append(NewsModel(title: "Hello", text: "Hi, my friend", date: "22.08"))
-        
-        newsModel.append(NewsModel(title: "News", text: "Hi, boy", date: "22.09"))
-    }
-    
-    private func sortedNews(){
-        newsModel.sort { $0.date > $1.date }
-    }
 }
 
 // MARK: - Table view data source
@@ -134,23 +150,24 @@ extension MainNewsTabelTableViewController: UITableViewDataSource{
         let news = newsModel[indexPath.row]
         cell.news = news
         
-        cell.selectionStyle = .none
-        
-        if news.isReadNews == true{
+        if news.isReadNews == true {
             cell.backgroundColor = .init(red: 66/255, green: 145/255, blue: 1, alpha: 0.1)
+        } else {
+            cell.backgroundColor = .none
         }
         
         return cell
     }
     
+    //MARK:- Create new view
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         ind = indexPath.row
-        newsModel[indexPath.row].isReadNews = true
-        let vc = CellViewController()
+        newsModel[ind].isReadNews = true
+        let vc = AboutCellViewController()
         self.navigationController?.pushViewController(vc, animated: false)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        return 100
     }
 }

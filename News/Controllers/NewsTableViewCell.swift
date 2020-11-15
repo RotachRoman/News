@@ -9,6 +9,8 @@ import UIKit
 
 final class NewsTableViewCell: UITableViewCell {
     
+    private let padding: CGFloat = 8
+    
     var news : NewsModel? {
         didSet {
             newsTitle.text = news?.newsTitle
@@ -19,16 +21,20 @@ final class NewsTableViewCell: UITableViewCell {
     private let newsTitle : UILabel = {
         let lable = UILabel()
         lable.textColor = .black
-        lable.font = UIFont.boldSystemFont(ofSize: 22)
+        lable.numberOfLines = 3
+        lable.lineBreakMode = .byWordWrapping
+        lable.font = UIFont.boldSystemFont(ofSize: 18)
         lable.textAlignment = .left
+        lable.translatesAutoresizingMaskIntoConstraints = false
         return lable
     }()
     
     private let newsDate : UILabel = {
         let lable = UILabel()
         lable.textColor = .gray
-        lable.font = UIFont.systemFont(ofSize: 14)
+        lable.font = UIFont.systemFont(ofSize: 12)
         lable.textAlignment = .right
+        lable.translatesAutoresizingMaskIntoConstraints = false
         return lable
     }()
 
@@ -46,8 +52,15 @@ final class NewsTableViewCell: UITableViewCell {
     
     // MARK: - Setting Constraints
     private func setupConstraints(){
-        newsTitle.anchor(top: topAnchor, left: leftAnchor, bottom: nil, right: nil, paddingTop: 5, paddingLeft: 14, paddingBottom: 0, paddingRight: 10, width: frame.size.width , height: 0 , enableInsets: false)
         
-        newsDate.anchor(top: newsTitle.bottomAnchor, left: leftAnchor, bottom: bottomAnchor, right: nil, paddingTop: -5, paddingLeft: 14, paddingBottom: 0, paddingRight: 10, width: 0, height: 0, enableInsets: false)
+        NSLayoutConstraint.activate([
+            newsDate.topAnchor.constraint(equalTo: self.layoutMarginsGuide.topAnchor),
+            newsDate.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor)
+        ])
+        NSLayoutConstraint.activate([
+            newsTitle.topAnchor.constraint(equalTo: newsDate.bottomAnchor),
+            newsTitle.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
+            newsTitle.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor)
+        ])
     }
 }

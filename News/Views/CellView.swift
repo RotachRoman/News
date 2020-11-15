@@ -7,35 +7,50 @@
 
 import UIKit
 
-final class CellView: UIView {
+final class CellView: UIView, CreateViewProtocol {
 
-    private let padding: CGFloat = 16
-    private let nc: CGFloat = 80
+    private let padding: CGFloat = 12
+    
+    private lazy var scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        return scroll
+    }()
+    
+    private lazy var stackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
     
     private lazy var textTitle: UILabel = {
         let lable = UILabel()
         lable.textColor = .black
-        lable.font = UIFont.boldSystemFont(ofSize: 22)
+        lable.font = UIFont.boldSystemFont(ofSize: 18)
         lable.textAlignment = .left
-        lable.lineBreakMode = NSLineBreakMode.byWordWrapping
+        lable.numberOfLines = 5
+        lable.lineBreakMode = .byWordWrapping
         lable.translatesAutoresizingMaskIntoConstraints = false
         return lable
     }()
     
-    private lazy var textField: UITextField = {
-        let field = UITextField()
-        field.textColor = .black
-        field.font = UIFont.systemFont(ofSize: 18)
-        field.textAlignment = .justified
-        field.translatesAutoresizingMaskIntoConstraints = false
-        return field
+    private lazy var textLable: UILabel = {
+        let lable = UILabel()
+        lable.textColor = .black
+        lable.font = UIFont.systemFont(ofSize: 15)
+        lable.textAlignment = .left
+        lable.numberOfLines = .bitWidth
+        lable.lineBreakMode = .byWordWrapping
+        lable.translatesAutoresizingMaskIntoConstraints = false
+        return lable
     }()
     
     private lazy var dateLable: UILabel = {
         let lable = UILabel()
         lable.textColor = .gray
-        lable.font = UIFont.systemFont(ofSize: 14)
-        lable.textAlignment = .right
+        lable.font = UIFont.systemFont(ofSize: 12)
+        lable.textAlignment = .left
         lable.translatesAutoresizingMaskIntoConstraints = false
         return lable
     }()
@@ -56,29 +71,47 @@ final class CellView: UIView {
     }
     
     // MARK: - Setting Views
-    private func setupViews() {
-        
-        addSubview(textTitle)
-        addSubview(textField)
-        addSubview(dateLable)
+    internal func setupViews() {
+        addSubview(scrollView)
+        scrollView.addSubview(stackView)
+        stackView.addArrangedSubview(textTitle)
+        stackView.addArrangedSubview(dateLable)
+        stackView.addArrangedSubview(textLable)
     }
     
     // MARK: - Setting Constraints
-    private func setupConstraints() {
+    internal func setupConstraints() {
         
         NSLayoutConstraint.activate([
-            textTitle.topAnchor.constraint(equalTo: topAnchor, constant: padding + nc),
-            textTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
-        
         NSLayoutConstraint.activate([
-            dateLable.topAnchor.constraint(equalTo: textTitle.bottomAnchor, constant: 2),
-            dateLable.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.layoutMarginsGuide.trailingAnchor, constant: -padding)
         ])
 
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: dateLable.bottomAnchor, constant: padding),
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
+            textTitle.topAnchor.constraint(equalTo: stackView.topAnchor, constant: padding),
+            textTitle.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: padding),
+            textTitle.trailingAnchor.constraint(equalTo: stackView.layoutMarginsGuide.trailingAnchor)
+        ])
+
+        NSLayoutConstraint.activate([
+            dateLable.topAnchor.constraint(equalTo: textTitle.layoutMarginsGuide.bottomAnchor, constant: 2),
+            dateLable.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: padding),
+            dateLable.trailingAnchor.constraint(lessThanOrEqualTo: stackView.trailingAnchor)
+        ])
+
+        NSLayoutConstraint.activate([
+            textLable.topAnchor.constraint(equalTo: dateLable.layoutMarginsGuide.bottomAnchor, constant: padding),
+            textLable.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: padding),
+            textLable.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
+            textLable.trailingAnchor.constraint(lessThanOrEqualTo: stackView.layoutMarginsGuide.trailingAnchor)
         ])
     }
 }
@@ -89,7 +122,7 @@ extension CellView {
     public func configureCell(news: NewsModel) {
         
         textTitle.text = news.newsTitle
-        textField.text = news.newsText
+        textLable.text = news.newsText
         dateLable.text = news.date
     }
 }
