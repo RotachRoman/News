@@ -14,8 +14,25 @@ final class NewsTableViewCell: UITableViewCell {
     var news : NewsModel? {
         didSet {
             newsTitle.text = news?.newsTitle
-            newsDate.text = news?.date
+            newsDate.text = getFormatingStringDate()
         }
+    }
+    
+    private func getFormatingStringDate() -> String {
+        let components = news!.date.get(.day, .month, .hour, .minute)
+        if let day = components.day, let month = components.month, let hour = components.hour, let minute = components.minute{
+            let date = Date()
+            if date.get(.day) == day {
+                return "Сегодня в \(hour):\(minute)"
+            } else {
+                if date.get(.day) - 1 == day {
+                    return "Вчера в \(hour):\(minute)"
+                } else {
+                    return "\(hour):\(minute) \(day).\(month)"
+                }
+            }
+        }
+        return "\(news!.date)"
     }
     
     private let newsTitle : UILabel = {
@@ -62,5 +79,15 @@ final class NewsTableViewCell: UITableViewCell {
             newsTitle.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
             newsTitle.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor)
         ])
+    }
+}
+
+extension Date {
+    func get(_ components: Calendar.Component..., calendar: Calendar = Calendar.current) -> DateComponents {
+        return calendar.dateComponents(Set(components), from: self)
+    }
+
+    func get(_ component: Calendar.Component, calendar: Calendar = Calendar.current) -> Int {
+        return calendar.component(component, from: self)
     }
 }

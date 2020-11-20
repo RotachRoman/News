@@ -50,11 +50,12 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         while (count < parseData?.items.count ?? 0) {
             let title = parseData.items[count].titleNews
             var text = parseData.items[count].textNews
-            let date = parseData.items[count].dateNews
+            let dateString = parseData.items[count].dateNews
             
             replacingText(text: &text)
-            
-            newsModel.append(NewsModel(title: title, text: text, date: date))
+            let convertDate = stringToDate(date: dateString)
+        
+            newsModel.append(NewsModel(title: title, text: text, date: convertDate))
             count += 1
         }
         DispatchQueue.main.async {
@@ -62,6 +63,21 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         }
     }
 
+    private func stringToDate(date: String) -> Date{
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "E, d MMM y H:mm:ss Z"
+        guard let date = dateFormatter.date(from: date) else {
+            preconditionFailure("Take a look to your format")
+        }
+//        let calendar = Calendar.current
+//        let dateComponents = calendar.dateComponents([.hour, .minute, .month, .day], from: date)
+//        guard let newDate = calendar.date(from: dateComponents) else {
+//            preconditionFailure("Take a look to your components")
+//        }
+        return date
+    }
+    
     private func replacingText( text: inout String){
         text = text.replacingOccurrences(of: "</p>", with: "\n", options: NSString.CompareOptions.literal, range: nil)
         text = text.replacingOccurrences(of: "<p>", with: "", options: NSString.CompareOptions.literal, range: nil)
@@ -171,3 +187,14 @@ extension MainNewsTabelTableViewController: UITableViewDataSource{
         return 100
     }
 }
+
+//extension String {
+//  func toDate(withFormat format: String = "yyyy-MM-dd") -> Date {
+//    let dateFormatter = DateFormatter()
+//    dateFormatter.dateFormat = format
+//    guard let date = dateFormatter.date(from: self) else {
+//      preconditionFailure("Take a look to your format")
+//    }
+//    return date
+//  }
+//}

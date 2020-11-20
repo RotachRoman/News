@@ -11,10 +11,10 @@ final class NewsModel {
     
     let newsTitle: String
     let newsText: String
-    let date: String
+    let date: Date
     var isReadNews: Bool
     
-    init (title: String, text: String, date: String){
+    init (title: String, text: String, date: Date){
         self.newsTitle = title
         self.newsText = text
         self.date = date

@@ -123,7 +123,7 @@ extension CellView {
         
         textTitle.text = news.newsTitle
         textLable.text = news.newsText
-        dateLable.text = news.date
+        dateLable.text = String(describing: news.date)
     }
 }
 
