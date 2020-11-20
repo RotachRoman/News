@@ -21,8 +21,8 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         return refreshControl
     }()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func loadView() {
+        super.loadView()
         editNavigation()
         updateInterface()
         
@@ -30,6 +30,14 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         setupConstraints()
         
         tableView.refreshControl = myRefreshControl
+        tableView.reloadData()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.estimatedRowHeight = 50
+        tableView.rowHeight = UITableView.automaticDimension
+        
         tableView.reloadData()
     }
 
@@ -70,11 +78,6 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         guard let date = dateFormatter.date(from: date) else {
             preconditionFailure("Take a look to your format")
         }
-//        let calendar = Calendar.current
-//        let dateComponents = calendar.dateComponents([.hour, .minute, .month, .day], from: date)
-//        guard let newDate = calendar.date(from: dateComponents) else {
-//            preconditionFailure("Take a look to your components")
-//        }
         return date
     }
     
@@ -129,13 +132,14 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         tableView.reloadData()
     }
     
-    // MARK: - Setting Views
+    // MARK: - Setting Views and Table
     private func setupTableView(){
-        view.addSubview(tableView)
-        
-        tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "cell")
+        
+        view.addSubview(tableView)
     }
     
     // MARK: - Setting Constraints
@@ -184,17 +188,6 @@ extension MainNewsTabelTableViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+        return UITableView.automaticDimension
     }
 }
-
-//extension String {
-//  func toDate(withFormat format: String = "yyyy-MM-dd") -> Date {
-//    let dateFormatter = DateFormatter()
-//    dateFormatter.dateFormat = format
-//    guard let date = dateFormatter.date(from: self) else {
-//      preconditionFailure("Take a look to your format")
-//    }
-//    return date
-//  }
-//}

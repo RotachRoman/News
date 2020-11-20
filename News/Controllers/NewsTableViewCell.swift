@@ -38,7 +38,7 @@ final class NewsTableViewCell: UITableViewCell {
     private let newsTitle : UILabel = {
         let lable = UILabel()
         lable.textColor = .black
-        lable.numberOfLines = 3
+        lable.numberOfLines = 0
         lable.lineBreakMode = .byWordWrapping
         lable.font = UIFont.boldSystemFont(ofSize: 18)
         lable.textAlignment = .left
@@ -48,6 +48,7 @@ final class NewsTableViewCell: UITableViewCell {
     
     private let newsDate : UILabel = {
         let lable = UILabel()
+        lable.numberOfLines = 1
         lable.textColor = .gray
         lable.font = UIFont.systemFont(ofSize: 12)
         lable.textAlignment = .right
@@ -71,13 +72,16 @@ final class NewsTableViewCell: UITableViewCell {
     private func setupConstraints(){
         
         NSLayoutConstraint.activate([
-            newsDate.topAnchor.constraint(equalTo: self.layoutMarginsGuide.topAnchor),
-            newsDate.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor)
+            newsDate.topAnchor.constraint(equalTo: self.topAnchor, constant: padding),
+            newsDate.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding),
+            newsTitle.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor)
         ])
         NSLayoutConstraint.activate([
-            newsTitle.topAnchor.constraint(equalTo: newsDate.bottomAnchor),
-            newsTitle.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
+            newsTitle.topAnchor.constraint(equalTo: newsDate.bottomAnchor, constant: 2),
+            newsTitle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding),
+            newsTitle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -padding),
             newsTitle.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor)
+            
         ])
     }
 }
