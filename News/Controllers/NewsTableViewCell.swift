@@ -9,7 +9,7 @@ import UIKit
 
 final class NewsTableViewCell: UITableViewCell {
     
-    private let padding: CGFloat = 8
+    private let padding: CGFloat = 12
     
     var news : NewsModel? {
         didSet {
@@ -81,7 +81,6 @@ final class NewsTableViewCell: UITableViewCell {
             newsTitle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding),
             newsTitle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -padding),
             newsTitle.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor)
-            
         ])
     }
 }

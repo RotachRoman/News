@@ -6,14 +6,17 @@
 //
 
 import UIKit
+import CoreData
 
 var ind: Int = -1
 var newsModel: [NewsModel] = [NewsModel]()
 
 final class MainNewsTabelTableViewController: UIViewController, UITableViewDelegate, XMLParserDelegate {
     
-    private var tableView = UITableView()
+    private let addTableView = UITableView()
+    private let mainTableView = UITableView()
     private var parseData: ParserRSS!
+    private var sources: [Sources] = []
     
     private let myRefreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -23,27 +26,44 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
     
     override func loadView() {
         super.loadView()
+        
+        loadMainTableView()
+        loadAdditionalTable()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        mainTableView.estimatedRowHeight = 100
+        mainTableView.rowHeight = UITableView.automaticDimension
+        
+        addTableView.estimatedRowHeight = 100
+        addTableView.rowHeight = UITableView.automaticDimension
+        editHidden()
+        
+        mainTableView.reloadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super .viewWillAppear(animated)
+        mainTableView.reloadData()
+        completionSource()
+        addTableView.reloadData()
+    }
+    
+    private func loadMainTableView(){
         editNavigation()
         updateInterface()
         
         setupTableView()
         setupConstraints()
         
-        tableView.refreshControl = myRefreshControl
-        tableView.reloadData()
+        mainTableView.refreshControl = myRefreshControl
+        mainTableView.reloadData()
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        tableView.estimatedRowHeight = 50
-        tableView.rowHeight = UITableView.automaticDimension
-        
-        tableView.reloadData()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        tableView.reloadData()
+    private func loadAdditionalTable(){
+        setupAddTableView()
+        setupAddConstraints()
     }
     
     //MARK: - Work with Data
@@ -67,7 +87,7 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
             count += 1
         }
         DispatchQueue.main.async {
-            self.tableView.reloadData()
+            self.mainTableView.reloadData()
         }
     }
 
@@ -87,11 +107,8 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         text = text.replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression, range: nil)
     }
     
-    private func loadData(){
-        guard let url = URL(string:"https://www.banki.ru/xml/news.rss") else {
-            // show error
-            return
-        }
+    private func loadData(url: URL){
+        
         let request = URLRequest(url: url)
         let session = URLSession.shared.dataTask(with: request) {[weak self] (data, response, error) in
             if error != nil {
@@ -114,8 +131,19 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
     }
     
     private func updateInterface(){
-            loadData()
-            recordDataInArray()
+        loadData(url: URL(string: "https://www.banki.ru/xml/news.rss")!)
+    }
+    
+    //MARK: - Fetch
+    private func completionSource(){
+        let context = getContext()
+        let fetchRequest: NSFetchRequest<Sources> = Sources.fetchRequest()
+        
+        do {
+            sources = try context.fetch(fetchRequest)
+        } catch let error as NSError {
+            print(error.localizedDescription)
+        }
     }
         
     //MARK: - Settings Navigation
@@ -125,21 +153,71 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         self.navigationItem.title = "News"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(update))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+        
+        let button = UIButton(type: .system)
+        button.setTitle("Источники ", for: .normal)
+        button.setImage(UIImage(systemName: "chevron.down.square"), for: .normal)
+        button.sizeToFit()
+        button.addTarget(self, action: #selector(list), for: .touchUpInside)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
     }
     
-    @objc private func update() {
-        tableView.reloadData()
+    //MARK: - Funcs Bar Buttons
+    @objc private func list () {
+        editHidden()
+    }
+    
+    @objc private func add() {
+        addTableHidden()
+        
+        let alertController = UIAlertController(title: "Новый источник", message: "Введите адресс нового источника (должен начинаться с https//www)", preferredStyle: .alert)
+        let saveAction = UIAlertAction(title: "Сохранить", style: .default) { action in
+            let textField = alertController.textFields?.first
+            textField?.placeholder = "https://www.banki.ru/xml/news.rss"
+            if let newSourse = textField?.text {
+                newsModel.removeAll()
+                self.saveSourse(sourse: newSourse)
+                guard let newURL = URL(string: newSourse) else { return }
+                self.loadData(url: newURL)
+                self.addTableView.reloadData()
+            }
+        }
+        alertController.addTextField { _ in}
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in }
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func saveSourse(sourse: String) {
+        let context = getContext()
+        guard let entity = NSEntityDescription.entity(forEntityName: "Sources", in: context) else { return }
+        let sourceObject = Sources(entity: entity, insertInto: context)
+        let fullURl = sourse
+        guard let URLSource = URL(string: fullURl) else {
+            return
+        }
+        sourceObject.source = URLSource
+        
+        do {
+            try context.save()
+            sources.insert(sourceObject, at: 0)
+        }catch let error as NSError {
+            print(error.localizedDescription)
+        }
     }
     
     // MARK: - Setting Views and Table
     private func setupTableView(){
-        tableView.delegate = self
-        tableView.dataSource = self
+        mainTableView.delegate = self
+        mainTableView.dataSource = self
         
-        tableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "cell")
+        mainTableView.register(NewsTableViewCell.self, forCellReuseIdentifier: "cell")
         
-        view.addSubview(tableView)
+        view.addSubview(mainTableView)
     }
     
     // MARK: - Setting Constraints
@@ -147,44 +225,106 @@ final class MainNewsTabelTableViewController: UIViewController, UITableViewDeleg
         
         let safe = view.safeAreaLayoutGuide
         
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        mainTableView.translatesAutoresizingMaskIntoConstraints = false
         
-        tableView.topAnchor.constraint(equalTo: safe.topAnchor).isActive = true
-        tableView.leftAnchor.constraint(equalTo: safe.leftAnchor).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        tableView.rightAnchor.constraint(equalTo: safe.rightAnchor).isActive = true
+        mainTableView.topAnchor.constraint(equalTo: safe.topAnchor).isActive = true
+        mainTableView.leftAnchor.constraint(equalTo: safe.leftAnchor).isActive = true
+        mainTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        mainTableView.rightAnchor.constraint(equalTo: safe.rightAnchor).isActive = true
     }
     
+    // MARK: - Setting additional Views and Table
+    private func setupAddTableView(){
+        addTableView.backgroundColor = .lightGray
+        addTableView.layer.cornerRadius = 5
+        addTableView.delegate = self
+        addTableView.dataSource = self
+        
+        addTableView.register(UITableViewCell.self, forCellReuseIdentifier: "addCell")
+        
+        view.addSubview(addTableView)
+    }
+    
+    // MARK: - Setting Additional Constraints
+    private func setupAddConstraints() {
+        
+        let safe = view.safeAreaLayoutGuide
+        
+        addTableView.translatesAutoresizingMaskIntoConstraints = false
+        
+        addTableView.topAnchor.constraint(equalTo: safe.topAnchor).isActive = true
+        addTableView.leftAnchor.constraint(equalTo: safe.leftAnchor, constant: 10).isActive = true
+        addTableView.bottomAnchor.constraint(equalTo: safe.centerYAnchor).isActive = true
+        addTableView.rightAnchor.constraint(equalTo: safe.rightAnchor, constant: -20).isActive = true
+    }
+    //MARK: - Supporting files
+    private func getContext() -> NSManagedObjectContext {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.persistentContainer.viewContext
+    }
+    
+    private func editHidden(){
+        if addTableView.isHidden {
+            addTableView.isHidden = false
+        } else {
+            addTableView.isHidden = true
+        }
+    }
+    
+    private func addTableHidden () {
+        if !addTableView.isHidden {
+            addTableView.isHidden = true
+        }
+    }
 }
 
 // MARK: - Table view data source
 extension MainNewsTabelTableViewController: UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return newsModel.count
+        if tableView == mainTableView {
+            return newsModel.count
+        } else {
+            return sources.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! NewsTableViewCell
-        let news = newsModel[indexPath.row]
-        cell.news = news
-        
-        if news.isReadNews == true {
-            cell.backgroundColor = .init(red: 66/255, green: 145/255, blue: 1, alpha: 0.1)
+        if tableView == mainTableView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! NewsTableViewCell
+            let news = newsModel[indexPath.row]
+            cell.news = news
+            
+            if news.isReadNews == true {
+                cell.backgroundColor = .init(red: 66/255, green: 145/255, blue: 1, alpha: 0.1)
+            } else {
+                cell.backgroundColor = .none
+            }
+            
+            return cell
         } else {
-            cell.backgroundColor = .none
+            let cell = addTableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath)
+            let source = sources[indexPath.row]
+            cell.backgroundColor = .lightGray
+            cell.textLabel?.numberOfLines = 0
+            cell.textLabel?.text = String(describing: source.source!)
+            return cell
         }
-        
-        return cell
     }
     
     //MARK:- Create new view
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        ind = indexPath.row
-        newsModel[ind].isReadNews = true
-        let vc = AboutCellViewController()
-        self.navigationController?.pushViewController(vc, animated: false)
+        if tableView == mainTableView {
+            addTableHidden()
+            ind = indexPath.row
+            newsModel[ind].isReadNews = true
+            let vc = AboutCellViewController()
+            self.navigationController?.pushViewController(vc, animated: false)
+        } else {
+            newsModel.removeAll()
+            loadData(url: sources[indexPath.row].source!)
+            editHidden()
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
